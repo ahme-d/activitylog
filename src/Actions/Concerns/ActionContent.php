@@ -123,7 +123,7 @@ trait ActionContent
 
             return $schema
                 ->state(['activities' => $formattedActivities])
-                ->components($this->getSchema());
+                ->components($this->getInternalSchema());
         });
     }
 
@@ -136,7 +136,7 @@ trait ActionContent
             ->icon('heroicon-o-bell-alert');
     }
 
-    private function getSchema(): array
+    private function getInternalSchema(): array
     {
         return [
             TimeLineRepeatableEntry::make('activities')
