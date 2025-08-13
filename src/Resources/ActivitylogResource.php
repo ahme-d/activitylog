@@ -2,17 +2,17 @@
 
 namespace Rmsramos\Activitylog\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\Action;
 use Exception;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Split;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\Column;
@@ -88,7 +88,7 @@ class ActivitylogResource extends Resource
 
     private static function getResourceUrl(Activity $record): string
     {
-        $panelID = Filament::getCurrentPanel()->getId();
+        $panelID = Filament::getCurrentOrDefaultPanel()->getId();
 
         if ($record->subject_type && $record->subject_id) {
             try {
@@ -114,11 +114,11 @@ class ActivitylogResource extends Resource
         return '#';
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $form): Schema
     {
         return $form
-            ->schema([
-                Split::make([
+            ->components([
+                Flex::make([
                     Section::make([
                         TextInput::make('causer_id')
                             ->afterStateHydrated(function ($component, ?Model $record) {
@@ -438,7 +438,7 @@ class ActivitylogResource extends Resource
 
                 return $indicators;
             })
-            ->form([
+            ->schema([
                 self::getDatePickerCompoment('created_from'),
                 self::getDatePickerCompoment('created_until'),
             ])
@@ -475,7 +475,7 @@ class ActivitylogResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        $plugin = Filament::getCurrentPanel()?->getPlugin('rmsramos/activitylog');
+        $plugin = Filament::getCurrentOrDefaultPanel()?->getPlugin('rmsramos/activitylog');
 
         return $plugin?->getNavigationItem() ?? false;
     }
@@ -617,7 +617,7 @@ class ActivitylogResource extends Resource
         if ($user && method_exists($record->subject, 'exists')) {
             try {
                 return $user->can('restore', $record->subject);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return true;
             }
         }
